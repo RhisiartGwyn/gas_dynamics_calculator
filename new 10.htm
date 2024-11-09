@@ -390,6 +390,126 @@ function format(s) {
   return mant+xpos
     
 }
+
+function performCalculations(form) {
+	// u1, p1, rho1, gam1, u4, p4, rho4, gam4 
+    let iter = 1;
+    const eps = 0.100000034e-5;
+	
+	// g=eval(form.g.value) 
+	
+	u1 = eval(form.u1.value)
+	p1 = eval(form.p1.value)
+	rho1 = eval(form.rho1.value)
+	gam1 = eval(form.gam1.value)
+	
+	u4 = eval(form.u4.value)
+	p4 = eval(form.p4.value)
+	rho4 = eval(form.rho4.value)
+	gam4 = eval(form.gam4.value)
+	
+	console.log(`u1 = ${u1.toFixed(3)} m/s`);
+
+	// Initial calculations
+    const delta1 = 0.5 * (gam1 - 1);
+    const delta4 = 0.5 * (gam4 - 1);
+    const kappa1 = 0.5 * (gam1 + 1);
+    const kappa4 = 0.5 * (gam4 + 1);
+    const beta1 = gam1 / delta1;
+    const beta4 = gam4 / delta4;
+    const a1 = Math.sqrt(gam1 * p1 / rho1);
+    const a4 = Math.sqrt(gam4 * p4 / rho4);
+
+    const gam = 0.5 * (gam1 + gam4);
+    const deltam = 0.5 * (gam - 1);
+    const alfam = deltam / gam;
+	
+    const z = (a4 / a1) * Math.pow((p1 / p4), alfam);
+    let vel = (z * (a1 / deltam + u1) - (a4 / deltam - u4)) / (1 + z);
+    console.log(`Initial velocity = ${vel.toFixed(3)} m/s`);
+	
+	// Initialize p2, dp2, a2, etc., outside the loop to avoid undefined errors
+    let p2, dp2, a2, M2a, M1a, M1r, M1rq, w1;
+    let p3, dp3, a3, M3a, M4a, M4r, M4rq, w4;
+
+    while (true) {
+        //let p2, dp2, a2, M2a, M1a, M1r, M1rq, w1;
+
+        if (vel <= u1) {  // Left wave if shock
+            const x1 = kappa1 * (u1 - vel) / (2 * a1);
+            M1r = x1 + Math.sqrt(1 + Math.pow(x1, 2));
+            M1rq = Math.pow(M1r, 2);
+            p2 = p1 * (1 + gam1 * (M1rq - 1) / kappa1);
+            dp2 = -2 * gam1 * p1 * M1r / (a1 * (1 / M1rq + 1));
+            a2 = a1 * Math.sqrt((gam1 + 1 + (gam1 - 1) * (p2 / p1)) / (gam1 + 1 + (gam1 - 1) * (p1 / p2)));
+            w1 = u1 - M1r * a1;
+            M1a = u1 / a1;
+            M2a = vel / a2;
+        } else {  // Left wave if expansion
+            a2 = a1 - delta1 * (vel - u1);
+            p2 = p1 * Math.pow((a2 / a1), beta1);
+            dp2 = -gam1 * p2 / a2;
+            M2a = vel / a2;
+            M1a = u1 / a1;
+        }
+		
+		//console.log(`p2 = ${p2.toFixed(3)}`);
+
+        //let p3, dp3, a3, M3a, M4a, M4r, M4rq, w4;
+
+        if (vel >= u4) {  // Right wave if shock
+            const x4 = kappa4 * (u4 - vel) / (2 * a4);
+            M4r = x4 - Math.sqrt(1 + Math.pow(x4, 2));
+            M4rq = Math.pow(M4r, 2);
+            p3 = p4 * (1 + gam4 * (M4rq - 1) / kappa4);
+            dp3 = -2 * gam4 * p4 * M4r / (a4 * (1 / M4rq + 1));
+            a3 = a4 * Math.sqrt((gam4 + 1 + (gam4 - 1) * (p3 / p4)) / (gam4 + 1 + (gam4 - 1) * (p4 / p3)));
+            w4 = M4r * a4 + u4;
+            M4a = u4 / a4;
+            M3a = vel / a3;
+        } else {  // Right wave if expansion
+            a3 = a4 + delta4 * (vel - u4);
+            p3 = p4 * Math.pow((a3 / a4), beta4);
+            dp3 = gam4 * p3 / a3;
+            M3a = vel / a3;
+            M4a = u4 / a4;
+        }
+
+        // Convergence check
+        if (Math.abs(1 - p2 / p3) > eps) {
+            vel = vel - (p2 - p3) / (dp2 - dp3);  // Update velocity
+            iter += 1;
+			//console.log(`convergence check`);
+        } else {
+            break;
+        }
+    }
+	
+	console.log(`iter = ${iter.toFixed(3)}`);
+
+	//console.log(`p2 = ${p2.toFixed(3)}`);
+
+    // Final results
+	console.log(`a3 = ${a3.toFixed(3)} m/s`);
+    const rho2 = gam1 * (p2 / Math.pow(a2, 2));
+    const rho3 = gam4 * (p3 / Math.pow(a3, 2));
+
+    // Output the final values (replace with actual HTML output elements as needed)
+    console.log(`Final velocity = ${vel.toFixed(3)} m/s`);
+    console.log(`Density rho2 = ${rho2.toFixed(3)}, Density rho3 = ${rho3.toFixed(3)}`);
+	
+	form.vel1.value=format(""+vel)
+	form.vel2.value=format(""+vel)
+	form.p2.value=format(""+p2)
+	form.p3.value=format(""+p3)
+	form.rho2.value=format(""+rho2)
+	form.rho3.value=format(""+rho3)
+	form.a2.value=format(""+a2)
+	form.a3.value=format(""+a3)
+
+
+}
+
 </script>
 </head>
 
@@ -504,5 +624,63 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 </form>
 
 <hr>
+
+
+<!>
+
+<form>
+    <big><b>Riemann problem</b></big>
+
+    <ul>
+        <b>INPUT:</b> 
+        <table border="">
+            <tbody>
+                <tr>
+                    <th>u<sub>1</sub>=</th><th><input value="300" type="text" name="u1" size="12"></th>
+                    <th> </th><th>P<sub>1</sub>=</th><th><input value="300000" type="text" name="p1" size="12"></th>
+                    <th> </th><th>rho<sub>1</sub>=</th><th><input value="2.48" type="text" name="rho1" size="12"></th>
+                    <th> </th><th>gamma<sub>1</sub>=</th><th><input value="1.4" type="text" name="gam1" size="12"></th>
+                </tr>
+                <tr>
+                    <th>u<sub>4</sub>=</th><th><input value="-100" type="text" name="u4" size="12"></th>
+                    <th> </th><th>P<sub>4</sub>=</th><th><input value="148000" type="text" name="p4" size="12"></th>
+                    <th> </th><th>rho<sub>4</sub>=</th><th><input value="1.55" type="text" name="rho4" size="12"></th>
+                    <th> </th><th>gamma<sub>4</sub>=</th><th><input value="1.4" type="text" name="gam4" size="12"></th>
+                </tr>
+            </tbody>
+        </table>
+    </ul>
+
+    <br>
+
+    <ul>
+        <b>OUTPUT:</b> 
+        <table border="">
+            <tbody>
+                <tr>
+                    <th>u<sub>2</sub>=</th><th><input type="text" name="vel1" size="12"></th>
+                    <th> </th><th>P<sub>2</sub>=</th><th><input type="text" name="p2" size="12"></th>
+                    <th> </th><th>rho<sub>2</sub>=</th><th><input type="text" name="rho2" size="12"></th>
+                    <th> </th><th>a<sub>1</sub>=</th><th><input type="text" name="a2" size="12"></th>
+                </tr>
+                <tr>
+                    <th>u<sub>3</sub>=</th><th><input type="text" name="vel2" size="12"></th>
+                    <th> </th><th>P<sub>3</sub>=</th><th><input type="text" name="p3" size="12"></th>
+                    <th> </th><th>rho<sub>3</sub>=</th><th><input type="text" name="rho3" size="12"></th>
+                    <th> </th><th>a<sub>3</sub>=</th><th><input type="text" name="a3" size="12"></th>
+                </tr>
+            </tbody>
+        </table>
+    </ul>
+	
+	<ul>
+		<input type="button" value="Calculate" onclick="performCalculations(this.form)">
+	</ul>
+</form>
+
+
+<!>
+
+
 
 </body></html>
