@@ -74,6 +74,8 @@ function isent(form) {
   form.tt0.value = format(""+tt0(g,m))
   form.pp0.value = format(""+pp0(g,m))
   form.rr0.value = format(""+rr0(g,m))
+  aa0 = Math.sqrt(tt0(g,m))
+  form.aa0.value = format(""+aa0);
   form.tts.value = format(""+tts(g,m))
   form.pps.value = format(""+pps(g,m))
   form.rrs.value = format(""+rrs(g,m))
@@ -157,7 +159,8 @@ function nsr(form) {
   form.r2r1.value=format(""+rr0(g,m2(g,m1))/rr0(g,m1)*p02p01)
   form.t2t1.value=format(""+tt0(g,m2(g,m1))/tt0(g,m1))
   form.p1p02.value=format(""+pp0(g,m1)/p02p01)
-
+  a2a1 = Math.sqrt(tt0(g,m2(g,m1))/tt0(g,m1))
+  form.a2a1.value=format(""+a2a1)
 }
 
 function osr(form) {
@@ -220,7 +223,6 @@ function osr(form) {
   form.p02p01.value= format(""+p02p01)
   form.r2r1.value=format(""+rr0(g,m2(g,m1n))/rr0(g,m1n)*p02p01)
   form.t2t1.value=format(""+tt0(g,m2(g,m1n))/tt0(g,m1n))
-
 }
 
 function TtTtSR(g,m){
@@ -408,8 +410,6 @@ function performCalculations(form) {
 	rho4 = eval(form.rho4.value)
 	gam4 = eval(form.gam4.value)
 	
-	console.log(`u1 = ${u1.toFixed(3)} m/s`);
-
 	// Initial calculations
     const delta1 = 0.5 * (gam1 - 1);
     const delta4 = 0.5 * (gam4 - 1);
@@ -542,7 +542,9 @@ Gamma = <input type="text" name="g" value="1.4" size="6">, angles in degrees.
 
 <tr><th>p/p<sub>0</sub>=</th><th><input type="text" name="pp0" size="12"></th>
 <th> </th><th>rho/rho<sub>0</sub>=</th><th><input type="text" name="rr0" size="12"></th>
-<th> </th><th>T/T<sub>0</sub>=</th><th><input type="text" name="tt0" size="12"></th></tr>
+<th> </th><th>T/T<sub>0</sub>=</th><th><input type="text" name="tt0" size="12"></th>
+<th> </th><th>a/a<sub>0</sub>=</th><th><input type="text" name="aa0" size="12"></th>
+</tr>
 
 <tr><th>p/p*=</th><th><input type="text" name="pps" size="12"></th>
 <th> </th><th>rho/rho*=</th><th><input type="text" name="rrs" size="12"></th>
@@ -581,7 +583,8 @@ Gamma = <input type="text" name="g" value="1.4" size="6">
 
 <tr><th>p<sub>2</sub>/p<sub>1</sub>=</th><th><input type="text" name="p2p1" size="12"></th>
 <th> </th><th>rho<sub>2</sub>/rho<sub>1</sub>=</th><th><input type="text" name="r2r1" size="12"></th>
-<th> </th><th>T<sub>2</sub>/T<sub>1</sub>=</th><th><input type="text" name="t2t1" size="12"></th></tr>
+<th> </th><th>T<sub>2</sub>/T<sub>1</sub>=</th><th><input type="text" name="t2t1" size="12"></th>
+<th> </th><th>a<sub>2</sub>/a<sub>1</sub>=</th><th><input type="text" name="a2a1" size="12"></th></tr>
 
 </tbody></table>
 </ul>
@@ -624,10 +627,7 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 </form>
 
 <hr>
-
-
-<!>
-
+	
 <form>
     <big><b>Riemann problem</b></big>
 
@@ -636,15 +636,15 @@ M1 = <input type="text" name="m" value="5.0" size="12">
         <table border="">
             <tbody>
                 <tr>
-                    <th>u<sub>1</sub>=</th><th><input value="300" type="text" name="u1" size="12"></th>
-                    <th> </th><th>P<sub>1</sub>=</th><th><input value="300000" type="text" name="p1" size="12"></th>
-                    <th> </th><th>rho<sub>1</sub>=</th><th><input value="2.48" type="text" name="rho1" size="12"></th>
+                    <th>u<sub>1</sub>=</th><th><input type="text" name="u1" size="12"></th>
+                    <th> </th><th>P<sub>1</sub>=</th><th><input type="text" name="p1" size="12"></th>
+                    <th> </th><th>rho<sub>1</sub>=</th><th><input type="text" name="rho1" size="12"></th>
                     <th> </th><th>gamma<sub>1</sub>=</th><th><input value="1.4" type="text" name="gam1" size="12"></th>
                 </tr>
                 <tr>
-                    <th>u<sub>4</sub>=</th><th><input value="-100" type="text" name="u4" size="12"></th>
-                    <th> </th><th>P<sub>4</sub>=</th><th><input value="148000" type="text" name="p4" size="12"></th>
-                    <th> </th><th>rho<sub>4</sub>=</th><th><input value="1.55" type="text" name="rho4" size="12"></th>
+                    <th>u<sub>4</sub>=</th><th><input type="text" name="u4" size="12"></th>
+                    <th> </th><th>P<sub>4</sub>=</th><th><input type="text" name="p4" size="12"></th>
+                    <th> </th><th>rho<sub>4</sub>=</th><th><input type="text" name="rho4" size="12"></th>
                     <th> </th><th>gamma<sub>4</sub>=</th><th><input value="1.4" type="text" name="gam4" size="12"></th>
                 </tr>
             </tbody>
@@ -661,7 +661,7 @@ M1 = <input type="text" name="m" value="5.0" size="12">
                     <th>u<sub>2</sub>=</th><th><input type="text" name="vel1" size="12"></th>
                     <th> </th><th>P<sub>2</sub>=</th><th><input type="text" name="p2" size="12"></th>
                     <th> </th><th>rho<sub>2</sub>=</th><th><input type="text" name="rho2" size="12"></th>
-                    <th> </th><th>a<sub>1</sub>=</th><th><input type="text" name="a2" size="12"></th>
+                    <th> </th><th>a<sub>2</sub>=</th><th><input type="text" name="a2" size="12"></th>
                 </tr>
                 <tr>
                     <th>u<sub>3</sub>=</th><th><input type="text" name="vel2" size="12"></th>
@@ -677,10 +677,5 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 		<input type="button" value="Calculate" onclick="performCalculations(this.form)">
 	</ul>
 </form>
-
-
-<!>
-
-
 
 </body></html>
