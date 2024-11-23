@@ -197,10 +197,10 @@ function osr(form) {
   else if(i==2) {
     beta=eval(form.a.value)*3.14159265359/180.
     if(beta>=3.14159265359/2.) {
-      alert("Shock angle must be less than 90 deg.")
+      alert("Wave angle must be less than 90 deg.")
       return}
     if(beta-Math.asin(1./m1)<=0.0) {
-      alert("Shock angle must be greater than Mach angle")
+      alert("Wave angle must be greater than Mach angle")
       return}
     delta=mbd(g,m1,beta)}
   else if(i==3) {
@@ -223,6 +223,24 @@ function osr(form) {
   form.p02p01.value= format(""+p02p01)
   form.r2r1.value=format(""+rr0(g,m2(g,m1n))/rr0(g,m1n)*p02p01)
   form.t2t1.value=format(""+tt0(g,m2(g,m1n))/tt0(g,m1n))
+  
+  // compute sigma_max
+  term1 = (Math.pow(m1, 2) * (1 + g) - 4) / (2 * Math.pow(m1, 2) * g)
+  term2 = (Math.pow(m1, 2) * (1 + g) + 2) / (2 * Math.pow(m1, 4) * g)
+  inner_sqrt = Math.sqrt(Math.pow(term1, 2) + 4 * term2)
+  sqrt_term = Math.sqrt((term1 + inner_sqrt) / 2)
+  sig_max = Math.asin(sqrt_term) * 180 / 3.14159265359
+  form.sig_max.value = format(""+sig_max)
+  //
+  
+  // compute theta_max
+  aaa = (Math.pow(m1, 2) * (1 + g) - 4) / (2 * Math.pow(m1, 2) * g)
+  bbb = (Math.pow(m1, 2) * (1 + g) + 2) / (2 * Math.pow(m1, 4) * g)
+  ccc = aaa + Math.sqrt(Math.pow(aaa, 2) + 4 * bbb)
+  beta_star = Math.asin(Math.sqrt(ccc / 2))
+  theta_max = Math.atan(Math.sqrt(2 / ccc - 1) * (Math.pow(m1, 2) * ccc - 2) / (Math.pow(m1, 2) * (1 + g - ccc) + 2)) * 180 / 3.14159265359
+  form.theta_max.value = format(""+theta_max)
+  //
 }
 
 function TtTtSR(g,m){
@@ -426,7 +444,7 @@ function performCalculations(form) {
 	
     const z = (a4 / a1) * Math.pow((p1 / p4), alfam);
     let vel = (z * (a1 / deltam + u1) - (a4 / deltam - u4)) / (1 + z);
-    console.log(`Initial velocity = ${vel.toFixed(3)} m/s`);
+    // console.log(`Initial velocity = ${vel.toFixed(3)} m/s`);
 	
 	// Initialize p2, dp2, a2, etc., outside the loop to avoid undefined errors
     let p2, dp2, a2, M2a, M1a, M1r, M1rq, w1;
@@ -485,18 +503,18 @@ function performCalculations(form) {
         }
     }
 	
-	console.log(`iter = ${iter.toFixed(3)}`);
+	// console.log(`iter = ${iter.toFixed(3)}`);
 
 	//console.log(`p2 = ${p2.toFixed(3)}`);
 
     // Final results
-	console.log(`a3 = ${a3.toFixed(3)} m/s`);
+	// console.log(`a3 = ${a3.toFixed(3)} m/s`);
     const rho2 = gam1 * (p2 / Math.pow(a2, 2));
     const rho3 = gam4 * (p3 / Math.pow(a3, 2));
 
     // Output the final values (replace with actual HTML output elements as needed)
-    console.log(`Final velocity = ${vel.toFixed(3)} m/s`);
-    console.log(`Density rho2 = ${rho2.toFixed(3)}, Density rho3 = ${rho3.toFixed(3)}`);
+    // console.log(`Final velocity = ${vel.toFixed(3)} m/s`);
+    // console.log(`Density rho2 = ${rho2.toFixed(3)}, Density rho3 = ${rho3.toFixed(3)}`);
 	
 	form.vel1.value=format(""+vel)
 	form.vel2.value=format(""+vel)
@@ -518,7 +536,6 @@ function performCalculations(form) {
 <hr>
 <form>
 <big><b>Isentropic Flow Relations</b></big>
-Perfect Gas, 
 Gamma = <input type="text" name="g" value="1.4" size="6">, angles in degrees.
 <ul>
 <b>INPUT:</b> 
@@ -558,7 +575,6 @@ Gamma = <input type="text" name="g" value="1.4" size="6">, angles in degrees.
 
 <form>
 <big><b>Normal Shock Relations</b></big>
-Perfect Gas, 
 Gamma = <input type="text" name="g" value="1.4" size="6">
 <ul>
 <b>INPUT:</b> 
@@ -594,7 +610,6 @@ Gamma = <input type="text" name="g" value="1.4" size="6">
 
 <form>
 <big><b>Oblique Shock Relations</b></big>
-Perfect Gas, 
 Gamma = <input type="text" name="g" value="1.4" size="6">, angles in degrees.
 <ul>
 <b>INPUT:</b> 
@@ -602,7 +617,7 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 <select type="text" name="i">
 <option selected="selected"> Turn angle (weak shock)
 </option><option> Turn angle (strong shock)
-</option><option> Shock angle
+</option><option> Wave angle
 </option><option> M1n
 </option></select>
 =
@@ -612,11 +627,15 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 <table border="">
 <tbody><tr><th>M<sub>2</sub>=</th><th><input type="text" name="m2" size="12"></th>
 <th> </th><th>Turn ang.=</th><th><input type="text" name="delta" size="12"></th>
-<th> </th><th>Shock ang.=</th><th><input type="text" name="beta" size="12"></th></tr>
+<th> </th><th>Wave ang.=</th><th><input type="text" name="beta" size="12"></th>
+<th> </th><th>Sigma max.=</th><th><input type="text" name="sig_max" size="12"></th>
+</tr>
 
 <tr><th>p<sub>2</sub>/p<sub>1</sub>=</th><th><input type="text" name="p2p1" size="12"></th>
 <th> </th><th>rho<sub>2</sub>/rho<sub>1</sub>=</th><th><input type="text" name="r2r1" size="12"></th>
-<th> </th><th>T<sub>2</sub>/T<sub>1</sub>=</th><th><input type="text" name="t2t1" size="12"></th></tr>
+<th> </th><th>T<sub>2</sub>/T<sub>1</sub>=</th><th><input type="text" name="t2t1" size="12"></th>
+<th> </th><th>Theta max.=</th><th><input type="text" name="theta_max" size="12"></th>
+</tr>
 
 <tr><th>p<sub>02</sub>/p<sub>01</sub>=</th><th><input type="text" name="p02p01" size="12"></th>
 <th> </th><th>M<sub>1n</sub>=</th><th><input type="text" name="m1n" size="12"></th>
@@ -627,7 +646,10 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 </form>
 
 <hr>
-	
+
+
+<!>
+
 <form>
     <big><b>Riemann problem</b></big>
 
@@ -677,5 +699,10 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 		<input type="button" value="Calculate" onclick="performCalculations(this.form)">
 	</ul>
 </form>
+
+
+<!>
+
+
 
 </body></html>
