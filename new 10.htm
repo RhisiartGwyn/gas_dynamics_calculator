@@ -197,10 +197,10 @@ function osr(form) {
   else if(i==2) {
     beta=eval(form.a.value)*3.14159265359/180.
     if(beta>=3.14159265359/2.) {
-      alert("Wave angle must be less than 90 deg.")
+      alert("Shock angle must be less than 90 deg.")
       return}
     if(beta-Math.asin(1./m1)<=0.0) {
-      alert("Wave angle must be greater than Mach angle")
+      alert("Shock angle must be greater than Mach angle")
       return}
     delta=mbd(g,m1,beta)}
   else if(i==3) {
@@ -617,7 +617,7 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 <select type="text" name="i">
 <option selected="selected"> Turn angle (weak shock)
 </option><option> Turn angle (strong shock)
-</option><option> Wave angle
+</option><option> Shock angle
 </option><option> M1n
 </option></select>
 =
@@ -627,7 +627,7 @@ M1 = <input type="text" name="m" value="5.0" size="12">
 <table border="">
 <tbody><tr><th>M<sub>2</sub>=</th><th><input type="text" name="m2" size="12"></th>
 <th> </th><th>Turn ang.=</th><th><input type="text" name="delta" size="12"></th>
-<th> </th><th>Wave ang.=</th><th><input type="text" name="beta" size="12"></th>
+<th> </th><th>Shock ang.=</th><th><input type="text" name="beta" size="12"></th>
 <th> </th><th>Sigma max.=</th><th><input type="text" name="sig_max" size="12"></th>
 </tr>
 
